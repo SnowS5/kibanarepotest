@@ -1,0 +1,44 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.buildIndexSettings = buildIndexSettings;
+
+/*
+ * Wazuh app - Elastic wrapper helper
+ * Copyright (C) 2015-2022 Wazuh, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Find more information about this on the LICENSE file.
+ */
+
+/**
+ * Returns well formatted object to set shards and replicas when creating/updating indices.
+ * @param {*} file Parsed content from wazuh.yml file
+ * @param {string} indexName Target index name
+ * @param {number} defaultShards Default shards value if missing in configuration
+ * @param {number} defaulReplicas Default replicas value if missing in configuration
+ */
+function buildIndexSettings(file, indexName, defaultShards = 1, defaulReplicas = 0) {
+  if (indexName) {
+    const shards = file && typeof file[`${indexName}.shards`] !== 'undefined' ? file[`${indexName}.shards`] : defaultShards;
+    const replicas = file && typeof file[`${indexName}.replicas`] !== 'undefined' ? file[`${indexName}.replicas`] : defaulReplicas;
+    const configuration = {
+      settings: {
+        index: {
+          number_of_shards: shards,
+          number_of_replicas: replicas
+        }
+      }
+    };
+    return configuration;
+  }
+
+  return null;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImJ1aWxkLWluZGV4LXNldHRpbmdzLnRzIl0sIm5hbWVzIjpbImJ1aWxkSW5kZXhTZXR0aW5ncyIsImZpbGUiLCJpbmRleE5hbWUiLCJkZWZhdWx0U2hhcmRzIiwiZGVmYXVsUmVwbGljYXMiLCJzaGFyZHMiLCJyZXBsaWNhcyIsImNvbmZpZ3VyYXRpb24iLCJzZXR0aW5ncyIsImluZGV4IiwibnVtYmVyX29mX3NoYXJkcyIsIm51bWJlcl9vZl9yZXBsaWNhcyJdLCJtYXBwaW5ncyI6Ijs7Ozs7OztBQUFBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7O0FBRUE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDTyxTQUFTQSxrQkFBVCxDQUNMQyxJQURLLEVBRUxDLFNBRkssRUFHTEMsYUFBcUIsR0FBRyxDQUhuQixFQUlMQyxjQUFzQixHQUFHLENBSnBCLEVBS0w7QUFDQSxNQUFJRixTQUFKLEVBQWU7QUFDYixVQUFNRyxNQUFNLEdBQ1ZKLElBQUksSUFBSSxPQUFPQSxJQUFJLENBQUUsR0FBRUMsU0FBVSxTQUFkLENBQVgsS0FBdUMsV0FBL0MsR0FDSUQsSUFBSSxDQUFFLEdBQUVDLFNBQVUsU0FBZCxDQURSLEdBRUlDLGFBSE47QUFLQSxVQUFNRyxRQUFRLEdBQ1pMLElBQUksSUFBSSxPQUFPQSxJQUFJLENBQUUsR0FBRUMsU0FBVSxXQUFkLENBQVgsS0FBeUMsV0FBakQsR0FDSUQsSUFBSSxDQUFFLEdBQUVDLFNBQVUsV0FBZCxDQURSLEdBRUlFLGNBSE47QUFLQSxVQUFNRyxhQUFhLEdBQUc7QUFDcEJDLE1BQUFBLFFBQVEsRUFBRTtBQUNSQyxRQUFBQSxLQUFLLEVBQUU7QUFDTEMsVUFBQUEsZ0JBQWdCLEVBQUVMLE1BRGI7QUFFTE0sVUFBQUEsa0JBQWtCLEVBQUVMO0FBRmY7QUFEQztBQURVLEtBQXRCO0FBU0EsV0FBT0MsYUFBUDtBQUNEOztBQUVELFNBQU8sSUFBUDtBQUNEIiwic291cmNlc0NvbnRlbnQiOlsiLypcbiAqIFdhenVoIGFwcCAtIEVsYXN0aWMgd3JhcHBlciBoZWxwZXJcbiAqIENvcHlyaWdodCAoQykgMjAxNS0yMDIyIFdhenVoLCBJbmMuXG4gKlxuICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnlcbiAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5XG4gKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvclxuICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi5cbiAqXG4gKiBGaW5kIG1vcmUgaW5mb3JtYXRpb24gYWJvdXQgdGhpcyBvbiB0aGUgTElDRU5TRSBmaWxlLlxuICovXG5cbi8qKlxuICogUmV0dXJucyB3ZWxsIGZvcm1hdHRlZCBvYmplY3QgdG8gc2V0IHNoYXJkcyBhbmQgcmVwbGljYXMgd2hlbiBjcmVhdGluZy91cGRhdGluZyBpbmRpY2VzLlxuICogQHBhcmFtIHsqfSBmaWxlIFBhcnNlZCBjb250ZW50IGZyb20gd2F6dWgueW1sIGZpbGVcbiAqIEBwYXJhbSB7c3RyaW5nfSBpbmRleE5hbWUgVGFyZ2V0IGluZGV4IG5hbWVcbiAqIEBwYXJhbSB7bnVtYmVyfSBkZWZhdWx0U2hhcmRzIERlZmF1bHQgc2hhcmRzIHZhbHVlIGlmIG1pc3NpbmcgaW4gY29uZmlndXJhdGlvblxuICogQHBhcmFtIHtudW1iZXJ9IGRlZmF1bFJlcGxpY2FzIERlZmF1bHQgcmVwbGljYXMgdmFsdWUgaWYgbWlzc2luZyBpbiBjb25maWd1cmF0aW9uXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBidWlsZEluZGV4U2V0dGluZ3MoXG4gIGZpbGU6IGFueSxcbiAgaW5kZXhOYW1lOiBzdHJpbmcsXG4gIGRlZmF1bHRTaGFyZHM6IG51bWJlciA9IDEsXG4gIGRlZmF1bFJlcGxpY2FzOiBudW1iZXIgPSAwXG4pIHtcbiAgaWYgKGluZGV4TmFtZSkge1xuICAgIGNvbnN0IHNoYXJkcyA9XG4gICAgICBmaWxlICYmIHR5cGVvZiBmaWxlW2Ake2luZGV4TmFtZX0uc2hhcmRzYF0gIT09ICd1bmRlZmluZWQnXG4gICAgICAgID8gZmlsZVtgJHtpbmRleE5hbWV9LnNoYXJkc2BdXG4gICAgICAgIDogZGVmYXVsdFNoYXJkcztcblxuICAgIGNvbnN0IHJlcGxpY2FzID1cbiAgICAgIGZpbGUgJiYgdHlwZW9mIGZpbGVbYCR7aW5kZXhOYW1lfS5yZXBsaWNhc2BdICE9PSAndW5kZWZpbmVkJ1xuICAgICAgICA/IGZpbGVbYCR7aW5kZXhOYW1lfS5yZXBsaWNhc2BdXG4gICAgICAgIDogZGVmYXVsUmVwbGljYXM7XG5cbiAgICBjb25zdCBjb25maWd1cmF0aW9uID0ge1xuICAgICAgc2V0dGluZ3M6IHtcbiAgICAgICAgaW5kZXg6IHtcbiAgICAgICAgICBudW1iZXJfb2Zfc2hhcmRzOiBzaGFyZHMsXG4gICAgICAgICAgbnVtYmVyX29mX3JlcGxpY2FzOiByZXBsaWNhc1xuICAgICAgICB9XG4gICAgICB9XG4gICAgfTtcblxuICAgIHJldHVybiBjb25maWd1cmF0aW9uO1xuICB9XG5cbiAgcmV0dXJuIG51bGw7XG59XG4iXX0=

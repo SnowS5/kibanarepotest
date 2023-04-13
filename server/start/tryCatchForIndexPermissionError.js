@@ -1,0 +1,45 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tryCatchForIndexPermissionError = void 0;
+
+/*
+ * Wazuh app - HOF to manage the message when elastic show a Response error / security_exception
+ * Copyright (C) 2015-2022 Wazuh, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Find more information about this on the LICENSE file.
+ */
+const tryCatchForIndexPermissionError = wazuhIndex => functionToTryCatch => async () => {
+  try {
+    await functionToTryCatch();
+  } catch (error) {
+    let errorTypes;
+
+    (function (errorTypes) {
+      errorTypes["SECURITY_EXCEPTION"] = "security_exception";
+      errorTypes["RESPONSE_ERROR"] = "Response Error";
+    })(errorTypes || (errorTypes = {}));
+
+    switch (error.message) {
+      case errorTypes.SECURITY_EXCEPTION:
+        error.message = ((((error.meta || error.message).body || error.message).error || error.message).root_cause[0] || error.message).reason || error.message;
+        break;
+
+      case errorTypes.RESPONSE_ERROR:
+        error.message = `Could not check if the index ${wazuhIndex} exists due to no permissions for create, delete or check`;
+        break;
+    }
+
+    return Promise.reject(error);
+  }
+};
+
+exports.tryCatchForIndexPermissionError = tryCatchForIndexPermissionError;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRyeUNhdGNoRm9ySW5kZXhQZXJtaXNzaW9uRXJyb3IudHMiXSwibmFtZXMiOlsidHJ5Q2F0Y2hGb3JJbmRleFBlcm1pc3Npb25FcnJvciIsIndhenVoSW5kZXgiLCJmdW5jdGlvblRvVHJ5Q2F0Y2giLCJlcnJvciIsImVycm9yVHlwZXMiLCJtZXNzYWdlIiwiU0VDVVJJVFlfRVhDRVBUSU9OIiwibWV0YSIsImJvZHkiLCJyb290X2NhdXNlIiwicmVhc29uIiwiUkVTUE9OU0VfRVJST1IiLCJQcm9taXNlIiwicmVqZWN0Il0sIm1hcHBpbmdzIjoiOzs7Ozs7O0FBQUE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUdPLE1BQU1BLCtCQUErQixHQUFJQyxVQUFELElBQXlCQyxrQkFBRCxJQUF3QixZQUFZO0FBQ3ZHLE1BQUk7QUFDQSxVQUFNQSxrQkFBa0IsRUFBeEI7QUFDSCxHQUZELENBR0EsT0FBT0MsS0FBUCxFQUFjO0FBQUEsUUFDTEMsVUFESzs7QUFBQSxlQUNMQSxVQURLO0FBQ0xBLE1BQUFBLFVBREs7QUFDTEEsTUFBQUEsVUFESztBQUFBLE9BQ0xBLFVBREssS0FDTEEsVUFESzs7QUFLVixZQUFPRCxLQUFLLENBQUNFLE9BQWI7QUFDSSxXQUFLRCxVQUFVLENBQUNFLGtCQUFoQjtBQUNFSCxRQUFBQSxLQUFLLENBQUNFLE9BQU4sR0FBaUIsQ0FBQyxDQUFDLENBQUMsQ0FBQ0YsS0FBSyxDQUFDSSxJQUFOLElBQWNKLEtBQUssQ0FBQ0UsT0FBckIsRUFBOEJHLElBQTlCLElBQXNDTCxLQUFLLENBQUNFLE9BQTdDLEVBQXNERixLQUF0RCxJQUErREEsS0FBSyxDQUFDRSxPQUF0RSxFQUErRUksVUFBL0UsQ0FBMEYsQ0FBMUYsS0FBZ0dOLEtBQUssQ0FBQ0UsT0FBdkcsRUFBZ0hLLE1BQWhILElBQTBIUCxLQUFLLENBQUNFLE9BQWpKO0FBQ0E7O0FBQ0YsV0FBS0QsVUFBVSxDQUFDTyxjQUFoQjtBQUNFUixRQUFBQSxLQUFLLENBQUNFLE9BQU4sR0FBaUIsZ0NBQ2ZKLFVBQ0QsMkRBRkQ7QUFHQTtBQVJOOztBQVVBLFdBQU9XLE9BQU8sQ0FBQ0MsTUFBUixDQUFlVixLQUFmLENBQVA7QUFDSDtBQUNKLENBckJNIiwic291cmNlc0NvbnRlbnQiOlsiLypcbiAqIFdhenVoIGFwcCAtIEhPRiB0byBtYW5hZ2UgdGhlIG1lc3NhZ2Ugd2hlbiBlbGFzdGljIHNob3cgYSBSZXNwb25zZSBlcnJvciAvIHNlY3VyaXR5X2V4Y2VwdGlvblxuICogQ29weXJpZ2h0IChDKSAyMDE1LTIwMjIgV2F6dWgsIEluYy5cbiAqXG4gKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlmeVxuICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBhcyBwdWJsaXNoZWQgYnlcbiAqIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9yXG4gKiAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLlxuICpcbiAqIEZpbmQgbW9yZSBpbmZvcm1hdGlvbiBhYm91dCB0aGlzIG9uIHRoZSBMSUNFTlNFIGZpbGUuXG4gKi9cbmltcG9ydCB7IGxvZyB9IGZyb20gJy4uL2xpYi9sb2dnZXInO1xuXG5leHBvcnQgY29uc3QgdHJ5Q2F0Y2hGb3JJbmRleFBlcm1pc3Npb25FcnJvciA9ICh3YXp1aEluZGV4OiBzdHJpbmcpID0+IChmdW5jdGlvblRvVHJ5Q2F0Y2gpID0+IGFzeW5jICgpID0+IHtcbiAgICB0cnkge1xuICAgICAgICBhd2FpdCBmdW5jdGlvblRvVHJ5Q2F0Y2goKTtcbiAgICB9XG4gICAgY2F0Y2ggKGVycm9yKSB7XG4gICAgICAgIGVudW0gZXJyb3JUeXBlc3tcbiAgICAgICAgICAgIFNFQ1VSSVRZX0VYQ0VQVElPTiA9ICdzZWN1cml0eV9leGNlcHRpb24nLFxuICAgICAgICAgICAgUkVTUE9OU0VfRVJST1IgPSAnUmVzcG9uc2UgRXJyb3InLFxuICAgICAgICB9XG4gICAgICAgIHN3aXRjaChlcnJvci5tZXNzYWdlKXtcbiAgICAgICAgICAgIGNhc2UgZXJyb3JUeXBlcy5TRUNVUklUWV9FWENFUFRJT046XG4gICAgICAgICAgICAgIGVycm9yLm1lc3NhZ2UgPSAoKCgoKGVycm9yLm1ldGEgfHwgZXJyb3IubWVzc2FnZSkuYm9keSB8fCBlcnJvci5tZXNzYWdlKS5lcnJvciB8fCBlcnJvci5tZXNzYWdlKS5yb290X2NhdXNlWzBdIHx8IGVycm9yLm1lc3NhZ2UpLnJlYXNvbiB8fCBlcnJvci5tZXNzYWdlKTtcbiAgICAgICAgICAgICAgYnJlYWs7XG4gICAgICAgICAgICBjYXNlIGVycm9yVHlwZXMuUkVTUE9OU0VfRVJST1I6XG4gICAgICAgICAgICAgIGVycm9yLm1lc3NhZ2UgPSBgQ291bGQgbm90IGNoZWNrIGlmIHRoZSBpbmRleCAke1xuICAgICAgICAgICAgICAgIHdhenVoSW5kZXhcbiAgICAgICAgICAgICAgfSBleGlzdHMgZHVlIHRvIG5vIHBlcm1pc3Npb25zIGZvciBjcmVhdGUsIGRlbGV0ZSBvciBjaGVja2A7XG4gICAgICAgICAgICAgIGJyZWFrO1xuICAgICAgICB9XG4gICAgICAgIHJldHVybiBQcm9taXNlLnJlamVjdChlcnJvcik7XG4gICAgfVxufSJdfQ==
